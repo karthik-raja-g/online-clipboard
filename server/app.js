@@ -20,16 +20,37 @@ const uuid = new ShortUniqueId({
 });
 
 let sockets = [];
+let rooms = []
+// io.use((socket,next) => {
+//   let handshake = socket.handshake;
+//   next();
+// })
 io.on("connection", (socket) => {
-  const conId = uuid();
-  console.log(socket)
+  let handshake = socket.handshake;
+  console.log(rooms)
+  // console.log(handshake.auth)
+  if(handshake.auth?.sessionId) {
+    const currentRoom = rooms.find(room => room.uniqueId == handshake.auth.sessionId);
+    if(currentRoom) {
+      socket.broadcast.emit('old messages', currentRoom.messages || [])
+    } 
+  } else {
+    const conId = uuid();
+    const data = {
+      socketId: socket.id,
+      uniqueId: conId,
+      messages: []
+    }
+    rooms.push(data)
+    socket.broadcast.emit('register room', conId)
+    console.log('register room', data)
+  }
   socket.on("chat message", (msg) => {
-    console.log({ conId, random: Math.random() });
     if (!sockets.includes(socket.id)) {
       sockets.push(socket.id);
     }
     console.log(sockets);
-    socket.emit("chat message", msg);
+    socket.broadcast.emit("chat message", msg);
     socket.broadcast.emit("typing off", { name: "hola" });
   });
   socket.on("typing on", (msg) => {

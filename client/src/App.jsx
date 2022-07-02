@@ -11,7 +11,20 @@ function App() {
 
   useEffect(() => {
     if (socketRef.current) return;
-    socketRef.current = io("http://localhost:3000");
+    socketRef.current = io("http://localhost:3000", {
+      auth: {
+        sessionId: localStorage.getItem("sessionId")
+      },
+    });
+    socketRef.current.on("old messages", (msgs) => {
+      console.log('old messfaes', msgs)
+      setMessages(msgs)
+    });
+    socketRef.current.on("register room", (id) => {
+      console.log('register messaeg', id)
+      localStorage.setItem("sessionId", id)
+    }
+    );
     return () => {
       if (socketRef.current) socketRef.current.close();
       socketRef.current = null;
@@ -27,7 +40,7 @@ function App() {
 
   const sendMessage = (msg) => {
     socketRef.current.emit("chat message", message);
-    setMessage('')
+    setMessage("");
   };
 
   return (
