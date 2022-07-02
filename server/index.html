@@ -67,28 +67,56 @@
         <input id="input" autocomplete="off" /><button>Send</button>
     </form>
     <script src="/socket.io/socket.io.js"></script>
-<script>
-    var socket = io();
-  
-    var messages = document.getElementById('messages');
-    var form = document.getElementById('form');
-    var input = document.getElementById('input');
-  
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      if (input.value) {
-        socket.emit('chat message', input.value);
-        input.value = '';
-      }
-    });
-  
-    socket.on('chat message', function(msg) {
-      var item = document.createElement('li');
-      item.textContent = msg;
-      messages.appendChild(item);
-      window.scrollTo(0, document.body.scrollHeight);
-    });
-  </script>
+    <script>
+        var socket = io({
+            auth: {
+                token: "123"
+            }
+        });
+        var messages = document.getElementById('messages');
+        var form = document.getElementById('form');
+        var input = document.getElementById('input');
+        const typingText = document.createElement('li')
+        typingText.textContent = "someone is typing"
+        typingText.id = 'typo'
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (input.value) {
+                socket.emit('chat message', input.value);
+                input.value = '';
+            }
+        });
+
+        input.addEventListener('input', function () {
+            if (input.value) {
+                socket.emit('typing on', input.value)
+                console.log(input.value)
+            }
+        })
+        input.addEventListener('focusout', function () {
+            console.log('lost focus')
+            socket.emit('typing off', 'off')
+        })
+
+        socket.on('chat message', function (msg) {
+            var item = document.createElement('li');
+            item.textContent = msg;
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+        socket.on('typing on', function () {
+            messages.appendChild(typingText)
+        })
+        socket.on('typing off', function () {
+            const typo = document.getElementById('typo')
+            if (typo) {
+                messages.removeChild(typo)
+            }
+        })
+        // socket.on('typing', function () {
+
+        // })
+    </script>
 </body>
 
 </html>
