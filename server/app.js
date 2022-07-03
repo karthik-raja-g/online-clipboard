@@ -7,8 +7,8 @@ const ShortUniqueId = require("short-unique-id");
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3001"
-  }
+    origin: "http://localhost:3000",
+  },
 });
 
 // app.get("/", (req, res) => {
@@ -20,49 +20,68 @@ const uuid = new ShortUniqueId({
 });
 
 let sockets = [];
-let rooms = []
+let rooms = [];
 // io.use((socket,next) => {
 //   let handshake = socket.handshake;
 //   next();
 // })
 io.on("connection", (socket) => {
-  let handshake = socket.handshake;
-  console.log(rooms)
-  // console.log(handshake.auth)
-  if(handshake.auth?.sessionId) {
-    const currentRoom = rooms.find(room => room.uniqueId == handshake.auth.sessionId);
-    if(currentRoom) {
-      socket.broadcast.emit('old messages', currentRoom.messages || [])
-    } 
-  } else {
-    const conId = uuid();
-    const data = {
-      socketId: socket.id,
-      uniqueId: conId,
-      messages: []
+  console.log("connection log");
+  const id = uuid();
+  const data = {
+    name: id,
+    owner: socket.id,
+    members: [socket.id],
+    messages: [],
+  };
+  rooms.push(data);
+  socket.join(id);
+  // console.log(rooms);
+  // console.log(
+  //   `connected to ${socket.id} - ${id} - at ${new Date().getMilliseconds()}`
+  // );
+  setTimeout(() => {
+    socket.emit("sessionId", id);
+  }, 3000);
+  socket.on("chat message", ({ msg, roomId }) => {
+    console.log({ msg, roomId });
+    // const roomIndex = rooms.findIndex((room) => room.name == roomId);
+    const room = rooms.find((room) => room.name == roomId);
+    console.log(room, "found room");
+    if (room) {
+      const filtered = rooms.filter((room) => room.name != roomId);
+      rooms = [...filtered, { ...room, messages: [...room.messages, msg] }];
+      io.to(roomId).emit("chat message", msg);
     }
-    rooms.push(data)
-    socket.broadcast.emit('register room', conId)
-    console.log('register room', data)
-  }
-  socket.on("chat message", (msg) => {
-    if (!sockets.includes(socket.id)) {
-      sockets.push(socket.id);
+    // if (roomIndex > -1) {
+    //   rooms[roomIndex].messages.push(msg);
+    //   // socket.broadcast.emit("chat message", msg);
+    //   socket.to(roomId).emit("chat message", msg);
+    // }
+  });
+  socket.on("join room request", (args, cb) => {
+    console.log(args);
+    console.log(rooms);
+    const room = rooms.find((room) => room.name == args);
+    // console.log(room, 'found room')
+    if (room) {
+      socket.join(room.name);
+      socket.emit("chat message", room.messages);
     }
-    console.log(sockets);
-    socket.broadcast.emit("chat message", msg);
-    socket.broadcast.emit("typing off", { name: "hola" });
-  });
-  socket.on("typing on", (msg) => {
-    console.log(msg);
-    socket.broadcast.emit("typing on", { name: "hola" });
-  });
-  socket.on("typing off", (msg) => {
-    console.log(msg);
-    socket.broadcast.emit("typing off", { name: "hola" });
+    // const roomId = args;
+    // // console.log(args);
+    // // console.log(rooms);
+    // const roomIndex = rooms.findIndex((room) => room.name == roomId);
+    // if (roomIndex > -1) {
+    //   // console.log(rooms[roomIndex]);
+    //   socket.join(roomId);
+    //   const room = rooms[roomIndex];
+    //   socket.emit("room messages", room.messages);
+    // }
+    cb("received");
   });
 });
 
-server.listen(3000, () => {
-  console.log("listening on *:3000");
+server.listen(5000, () => {
+  console.log("listening on *:5000");
 });
