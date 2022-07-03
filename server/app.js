@@ -60,13 +60,17 @@ io.on("connection", (socket) => {
     // }
   });
   socket.on("join room request", (args, cb) => {
+    const roomId = args
     console.log(args);
     console.log(rooms);
-    const room = rooms.find((room) => room.name == args);
+    const room = rooms.find((room) => room.name == roomId);
     // console.log(room, 'found room')
     if (room) {
       socket.join(room.name);
       socket.emit("chat message", room.messages);
+      const filtered = rooms.filter((room) => room.name != roomId);
+      rooms = [...filtered, { ...room, members: [...room.members, socket.id] }];
+      io.to(room.owner).emit('connections count', room.members.length + 1)
     }
     // const roomId = args;
     // // console.log(args);

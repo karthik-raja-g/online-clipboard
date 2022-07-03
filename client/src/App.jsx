@@ -34,6 +34,9 @@ function App() {
     socketRef.current.on("chat message", (message) => {
       setMessages((prev) => [...prev, message]);
     });
+    socketRef.current.on('connections count', (count) => {
+      console.log('new joinee', count)
+    })
     // socketRef.current.on('test', (msg) => console.log('test called' + msg))
   }, [socketRef]);
 
