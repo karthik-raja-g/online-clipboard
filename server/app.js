@@ -35,17 +35,23 @@ io.on("connection", (socket) => {
       io.to(room.owner).emit("new connection", {
         connections: room.members.length,
         messages: room.messages,
+        roomId: room.id || room.name,
+        room
       });
       // Callback to send old messages to client
       cb(room.messages || []);
     }
-    socket.on("chat message", ({ msg, roomId }) => {
-      console.log({ room, roomId, socketId: socket.id });
-      if (room && room.id === roomId) {
-        updateMessageInRoom(roomId, msg);
+  });
+
+  // Placing this listener out inorder to broadcast the host
+  // message. TODO: not sure if this is the only way
+  socket.on("chat message", ({ msg, roomId }) => {
+    console.log({ msg, roomId });
+      const room = updateMessageInRoom(roomId, msg);
+      if (room) {
         io.to(roomId).emit("chat message", msg);
+        console.log("message emitted");
       }
-    });
   });
 });
 

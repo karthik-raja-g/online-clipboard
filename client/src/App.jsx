@@ -32,12 +32,14 @@ function App() {
   useEffect(() => {
     if (!socketRef.current) return;
     socketRef.current.on("chat message", (message) => {
+      console.log("msg received", message);
       setMessages((prev) => [...prev, message]);
     });
-    socketRef.current.on('new connection', (data) => {
-      console.log('new joinee', data.connections)
-      setJoined(true)
-    })
+    socketRef.current.on("new connection", (data) => {
+      console.log("new joinee", data);
+      setJoined(true);
+      setRoomId(data.roomId);
+    });
     socketRef.current.on("old messages", ({ messages }) => {
       setMessages(messages);
       // console.log('old', msgs)
@@ -57,15 +59,19 @@ function App() {
     });
   };
 
+  useEffect(() => {
+    console.log({ joined, roomId});
+  }, [joined, roomId]);
+
   return (
     <>
       <main>
-        {joined ? (
+        {joined && roomId ? (
           <>
             {" "}
             <h3>Messages</h3>
             <ul>
-              {messages?.map((msg,i) => (
+              {messages?.map((msg, i) => (
                 <li key={i}>{msg}</li>
               ))}
             </ul>
@@ -79,10 +85,12 @@ function App() {
           <></>
         )}
       </main>
-      <div style={{margin: '20px 0'}}>
-        <input value={roomId} onChange={(e) => setRoomId(e.target.value)} />
-        <button onClick={joinRoom}>Join room</button>
-      </div>
+      {!joined && (
+        <div style={{ margin: "20px 0" }}>
+          <input value={roomId} onChange={(e) => setRoomId(e.target.value)} />
+          <button onClick={joinRoom}>Join room</button>
+        </div>
+      )}
     </>
   );
 }

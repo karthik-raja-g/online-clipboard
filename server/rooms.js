@@ -52,5 +52,6 @@ module.exports = {
     let room = data.room;
     room.messages = [...room.messages, formatMessage(message)];
     rooms = [...data.otherRooms, room];
+    return data.room
   },
 };
