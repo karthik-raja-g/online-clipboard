@@ -34,9 +34,14 @@ function App() {
     socketRef.current.on("chat message", (message) => {
       setMessages((prev) => [...prev, message]);
     });
-    socketRef.current.on('connections count', (count) => {
-      console.log('new joinee', count)
+    socketRef.current.on('new connection', (data) => {
+      console.log('new joinee', data.connections)
+      setJoined(true)
     })
+    socketRef.current.on("old messages", ({ messages }) => {
+      setMessages(messages);
+      // console.log('old', msgs)
+    });
     // socketRef.current.on('test', (msg) => console.log('test called' + msg))
   }, [socketRef]);
 
@@ -46,8 +51,8 @@ function App() {
   };
 
   const joinRoom = () => {
-    socketRef.current.emit("join room request", roomId, (info) => {
-      console.log(info, "info");
+    socketRef.current.emit("joinRoom", roomId, (oldMessages) => {
+      setMessages(oldMessages);
       setJoined(true);
     });
   };
