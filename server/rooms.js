@@ -5,10 +5,10 @@ const uuid = new ShortUniqueId({
   length: 6,
 });
 
-const getRoomByIdAndRemainingRooms = (roomId) => {
+const getRoomByIdAndRemainingRooms = (id, key = "name") => {
   const data = rooms.reduce(
     (acc, curr) => {
-      if (curr.name === roomId) {
+      if (curr[key] === id) {
         acc.room = curr;
       } else {
         acc.otherRooms.push(curr);
@@ -52,6 +52,14 @@ module.exports = {
     let room = data.room;
     room.messages = [...room.messages, formatMessage(message)];
     rooms = [...data.otherRooms, room];
-    return data.room
+    return data.room;
   },
+  getPrimaryRoom: (socketId) => {
+    const data = getRoomByIdAndRemainingRooms(socketId, "owner");
+    return data?.room;
+  },
+  removeRoom: roomId => {
+    const filtered = rooms.filter(room => room.id !== roomId);
+    rooms = filtered;
+  }
 };
