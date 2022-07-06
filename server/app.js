@@ -9,6 +9,8 @@ const {
   getPrimaryRoom,
   getRoomByNameOrId,
   removeRoom,
+  removeSocketFromRoom,
+  checkIfSelfConnection,
 } = require("./rooms");
 
 const server = http.createServer(app);
@@ -28,6 +30,11 @@ io.on("connection", (socket) => {
   }, 3000);
 
   socket.on("joinRoom", (args, cb) => {
+    console.log({ socketId: socket.id, roomId: args });
+    if (checkIfSelfConnection(args, socket.id)) {
+      socket.emit("selfJoinError");
+      return;
+    }
     let roomToJoin = getRoomByNameOrId(args);
     if (!roomToJoin) {
       console.log("room not found");
@@ -61,6 +68,12 @@ io.on("connection", (socket) => {
     } else {
       console.log("room not found");
     }
+    socket.on("leaveRoom", (roomId) => {
+      const room = removeSocketFromRoom(roomId, socket.id);
+      console.log({ room });
+      socket.emit("socketDisconnected");
+      socket.leave(roomId);
+    });
   });
 
   // Placing this listener out inorder to broadcast the host

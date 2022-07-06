@@ -57,7 +57,7 @@ module.exports = {
     const formatted = formatMessage(message);
     room.messages = [...room.messages, formatted];
     rooms = [...data.otherRooms, room];
-    return {room: data.room, message: formatted };
+    return { room: data.room, message: formatted };
   },
   getPrimaryRoom: (socketId) => {
     const data = getRoomByIdAndRemainingRooms(socketId, "owner");
@@ -67,5 +67,23 @@ module.exports = {
     const filtered = rooms.filter((room) => room.id !== roomId);
     rooms = filtered;
   },
-  formatMessage
+  removeSocketFromRoom: (roomId, socketId) => {
+    const data = getRoomByIdAndRemainingRooms(roomId);
+    if (data.room) {
+      let updated = { ...data.room };
+      const updatedMembers = data.room.members.filter(
+        (member) => member !== socketId
+      );
+      updated.members = updatedMembers;
+      rooms = [...data.otherRooms, updated];
+      return updated;
+    }
+  },
+  checkIfSelfConnection: (roomId, socketId) => {
+    const room = rooms.find(room => room.id === roomId)
+    if (!room) return true;
+    return room.owner === socketId
+
+  },
+  formatMessage,
 };
