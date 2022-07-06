@@ -8,7 +8,7 @@ const {
   updateMessageInRoom,
   getPrimaryRoom,
   getRoomByNameOrId,
-  removeRoom
+  removeRoom,
 } = require("./rooms");
 
 const server = http.createServer(app);
@@ -28,10 +28,9 @@ io.on("connection", (socket) => {
   }, 3000);
 
   socket.on("joinRoom", (args, cb) => {
-    let roomToJoin = getRoomByNameOrId(args)
-    console.log({ roomToJoin });
-    if(!roomToJoin) {
-      console.log('room not found')
+    let roomToJoin = getRoomByNameOrId(args);
+    if (!roomToJoin) {
+      console.log("room not found");
       return;
     }
     const room = joinAndUpdateRooms(args, socket.id);
@@ -41,39 +40,38 @@ io.on("connection", (socket) => {
       socket.join(room.name);
 
       const primaryRoom = getPrimaryRoom(socket.id);
-      console.log({ primaryRoom });
-      
+
       // Leave the primary room joined during socket creation
       // This ensures that no one could connect to a socket
       // that is already connected to some other host
       if (primaryRoom) {
-        removeRoom(primaryRoom.id)
-        socket.leave(primaryRoom.id)
-        io.in(primaryRoom.id).socketsLeave(primaryRoom.id)
+        removeRoom(primaryRoom.id);
+        socket.leave(primaryRoom.id);
+        io.in(primaryRoom.id).socketsLeave(primaryRoom.id);
       }
       // Send the host a notification
       io.to(room.owner).emit("new connection", {
         connections: room.members.length,
         messages: room.messages,
         roomId: room.id || room.name,
-        room
+        room,
       });
       // Callback to send old messages to client
       cb(room.messages || []);
     } else {
-      console.log('room not found')
+      console.log("room not found");
     }
   });
 
   // Placing this listener out inorder to broadcast the host
   // message. TODO: not sure if this is the only way
   socket.on("chat message", ({ msg, roomId }) => {
-    console.log({ msg, roomId });
-      const room = updateMessageInRoom(roomId, msg);
-      if (room) {
-        io.to(roomId).emit("chat message", msg);
-        console.log("message emitted");
-      }
+    // console.log({ msg, roomId });
+    const { room, message } = updateMessageInRoom(roomId, msg);
+    if (room) {
+      io.to(roomId).emit("chat message", message);
+      console.log("message emitted", message);
+    }
   });
 });
 

@@ -1,4 +1,5 @@
 const ShortUniqueId = require("short-unique-id");
+const { isLink } = require("./utils");
 
 let rooms = [];
 const uuid = new ShortUniqueId({
@@ -20,7 +21,10 @@ const getRoomByIdAndRemainingRooms = (id, key = "name") => {
   return data;
 };
 
-const formatMessage = (message) => message;
+const formatMessage = (message) => ({
+  message,
+  type: isLink(message) ? "link" : "text",
+});
 
 module.exports = {
   createRoomForUser: (socketId) => {
@@ -50,16 +54,18 @@ module.exports = {
   updateMessageInRoom: (roomId, message) => {
     const data = getRoomByIdAndRemainingRooms(roomId);
     let room = data.room;
-    room.messages = [...room.messages, formatMessage(message)];
+    const formatted = formatMessage(message);
+    room.messages = [...room.messages, formatted];
     rooms = [...data.otherRooms, room];
-    return data.room;
+    return {room: data.room, message: formatted };
   },
   getPrimaryRoom: (socketId) => {
     const data = getRoomByIdAndRemainingRooms(socketId, "owner");
     return data?.room;
   },
-  removeRoom: roomId => {
-    const filtered = rooms.filter(room => room.id !== roomId);
+  removeRoom: (roomId) => {
+    const filtered = rooms.filter((room) => room.id !== roomId);
     rooms = filtered;
-  }
+  },
+  formatMessage
 };
