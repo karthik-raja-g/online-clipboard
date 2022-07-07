@@ -3,12 +3,14 @@ import logo from "./logo.svg";
 import "./App.css";
 import io from "socket.io-client";
 import { useEffect } from "react";
+import Layout from "./components/Layout";
 
 function App() {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [roomId, setRoomId] = useState("");
   const [joined, setJoined] = useState(false);
+  const [isHost, setIsHost] = useState(false);
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -19,6 +21,14 @@ function App() {
       },
     });
     socketRef.current.on("connect", (sk) => console.log(sk));
+    socketRef.current.on("socketDisconnected", (sk) => {
+      setRoomId("");
+      setMessage("");
+      setMessages([]);
+      setJoined(false);
+      console.log("socket left");
+    });
+    // socketRef.current.on('socketDisconnected', () => console.log('socket left'))
     socketRef.current.on("test", (msg) => console.log("test called" + msg));
     socketRef.current.on("sessionId", (id) => {
       console.log(id);
@@ -39,6 +49,7 @@ function App() {
       console.log("new joinee", data);
       setJoined(true);
       setRoomId(data.roomId);
+      setIsHost(true);
     });
     socketRef.current.on("old messages", ({ messages }) => {
       setMessages(messages);
@@ -59,39 +70,40 @@ function App() {
     });
   };
 
+  const leaveRoom = () => socketRef.current.emit("leaveRoom", roomId);
+
   useEffect(() => {
-    console.log({ joined, roomId});
+    console.log({ joined, roomId });
   }, [joined, roomId]);
 
   return (
-    <>
-      <main>
-        {joined && roomId ? (
-          <>
-            {" "}
-            <h3>Messages</h3>
-            <ul>
-              {messages?.map((msg, i) => (
-                <li key={i}>{msg}</li>
-              ))}
-            </ul>
-            <input
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-            />
-            <button onClick={sendMessage}>Send</button>
-          </>
-        ) : (
-          <></>
-        )}
-      </main>
+    <Layout>
+      {joined && roomId ? (
+        <>
+          {" "}
+          <h3>Messages</h3>
+          <ul>
+            {messages?.map((msg, i) => (
+              <li key={i}>
+                {msg.type}-{msg.message}
+              </li>
+            ))}
+          </ul>
+          <input value={message} onChange={(e) => setMessage(e.target.value)} />
+          <button onClick={sendMessage}>Send</button>
+          {!isHost && <button onClick={leaveRoom}>Leave room</button>}
+        </>
+      ) : (
+        <></>
+      )}
+
       {!joined && (
         <div style={{ margin: "20px 0" }}>
           <input value={roomId} onChange={(e) => setRoomId(e.target.value)} />
           <button onClick={joinRoom}>Join room</button>
         </div>
       )}
-    </>
+    </Layout>
   );
 }
 
