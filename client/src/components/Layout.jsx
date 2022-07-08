@@ -6,6 +6,11 @@ const Body = styled.div`
   display: grid;
   place-content: center;
   font-size: clamp(1rem, 2vw, 2rem);
+  background-color: #333e50;
+
+  & * {
+    font-family: 'Rubik', sans-serif;
+  }
 `;
 const Layout = ({ children }) => <Body>{children}</Body>;
 

@@ -4,6 +4,7 @@ import "./App.css";
 import io from "socket.io-client";
 import { useEffect } from "react";
 import Layout from "./components/Layout";
+import Form from "./components/InputForm";
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -11,7 +12,9 @@ function App() {
   const [roomId, setRoomId] = useState("");
   const [joined, setJoined] = useState(false);
   const [isHost, setIsHost] = useState(false);
+  const [ownRoomId, setOwnRoomId] = useState('')
   const socketRef = useRef(null);
+  let ownId = ''
 
   useEffect(() => {
     if (socketRef.current) return;
@@ -20,7 +23,10 @@ function App() {
         sessionId: localStorage.getItem("sessionId"),
       },
     });
-    socketRef.current.on("connect", (sk) => console.log(sk));
+    socketRef.current.on("connect", (sk) => {
+      console.log(sk);
+      
+    });
     socketRef.current.on("socketDisconnected", (sk) => {
       setRoomId("");
       setMessage("");
@@ -32,6 +38,8 @@ function App() {
     socketRef.current.on("test", (msg) => console.log("test called" + msg));
     socketRef.current.on("sessionId", (id) => {
       console.log(id);
+      setOwnRoomId(id)
+      // ownId = id
     });
     return () => {
       if (socketRef.current) socketRef.current.close();
@@ -98,13 +106,20 @@ function App() {
       )}
 
       {!joined && (
-        <div style={{ margin: "20px 0" }}>
-          <input value={roomId} onChange={(e) => setRoomId(e.target.value)} />
-          <button onClick={joinRoom}>Join room</button>
-        </div>
+        <Form roomId={roomId} setRoomId={setRoomId} submitHandler={joinRoom} ownRoom={ownRoomId} />
+        // <div style={{ margin: "20px 0" }}>
+        //   <input value={roomId} onChange={(e) => setRoomId(e.target.value)} />
+        //   <button onClick={joinRoom}>Join room</button>
+        // </div>
       )}
     </Layout>
   );
 }
+
+// #333e50  hsl(217,22%,26%)rgb(51,62,80)
+
+// #2f3a4a  hsl(216,22%,24%)rgb(47,58,74) depth
+
+// #d94255  hsl(352,67%,55%)rgb(217,66,85) red
 
 export default App;
