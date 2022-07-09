@@ -17,7 +17,7 @@ const TextInput = styled.input`
   color: #d1dfec;
   height: 40px;
   border-radius: 2px;
-  letter-spacing: 0.5em;
+  /* letter-spacing: 0.5em; */
   font-size: 1em;
   padding: 0 0.5em;
   /* border: none; */
