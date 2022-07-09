@@ -5,6 +5,8 @@ import io from "socket.io-client";
 import { useEffect } from "react";
 import Layout from "./components/Layout";
 import Form from "./components/InputForm";
+import data from './mockData';
+import MessageList from "./components/MessageList";
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -12,20 +14,18 @@ function App() {
   const [roomId, setRoomId] = useState("");
   const [joined, setJoined] = useState(false);
   const [isHost, setIsHost] = useState(false);
-  const [ownRoomId, setOwnRoomId] = useState('')
+  const [ownRoomId, setOwnRoomId] = useState("");
   const socketRef = useRef(null);
-  let ownId = ''
 
   useEffect(() => {
     if (socketRef.current) return;
-    socketRef.current = io("http://localhost:5000", {
+    socketRef.current = io("http://192.168.0.105:5000", {
       auth: {
         sessionId: localStorage.getItem("sessionId"),
       },
     });
     socketRef.current.on("connect", (sk) => {
       console.log(sk);
-      
     });
     socketRef.current.on("socketDisconnected", (sk) => {
       setRoomId("");
@@ -38,7 +38,7 @@ function App() {
     socketRef.current.on("test", (msg) => console.log("test called" + msg));
     socketRef.current.on("sessionId", (id) => {
       console.log(id);
-      setOwnRoomId(id)
+      setOwnRoomId(id);
       // ownId = id
     });
     return () => {
@@ -67,8 +67,8 @@ function App() {
   }, [socketRef]);
 
   const sendMessage = (msg) => {
-    socketRef.current.emit("chat message", { msg: message, roomId });
-    setMessage("");
+    socketRef.current.emit("chat message", { msg, roomId });
+    // setMessage("");
   };
 
   const joinRoom = () => {
@@ -84,11 +84,14 @@ function App() {
     console.log({ joined, roomId });
   }, [joined, roomId]);
 
+  // return 
+
   return (
     <Layout>
       {joined && roomId ? (
         <>
-          {" "}
+        <MessageList messages={messages} room={roomId} onSendMessage={sendMessage} />
+          {/* {" "}
           <h3>Messages</h3>
           <ul>
             {messages?.map((msg, i) => (
@@ -99,18 +102,19 @@ function App() {
           </ul>
           <input value={message} onChange={(e) => setMessage(e.target.value)} />
           <button onClick={sendMessage}>Send</button>
-          {!isHost && <button onClick={leaveRoom}>Leave room</button>}
+          {!isHost && <button onClick={leaveRoom}>Leave room</button>} */}
         </>
       ) : (
         <></>
       )}
 
       {!joined && (
-        <Form roomId={roomId} setRoomId={setRoomId} submitHandler={joinRoom} ownRoom={ownRoomId} />
-        // <div style={{ margin: "20px 0" }}>
-        //   <input value={roomId} onChange={(e) => setRoomId(e.target.value)} />
-        //   <button onClick={joinRoom}>Join room</button>
-        // </div>
+        <Form
+          roomId={roomId}
+          setRoomId={setRoomId}
+          submitHandler={joinRoom}
+          ownRoom={ownRoomId}
+        />
       )}
     </Layout>
   );

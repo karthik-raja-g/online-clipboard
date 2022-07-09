@@ -5,6 +5,9 @@ let rooms = [];
 const uuid = new ShortUniqueId({
   length: 6,
 });
+const messageId = new ShortUniqueId({
+  length: 8
+})
 
 const getRoomByIdAndRemainingRooms = (id, key = "name") => {
   const data = rooms.reduce(

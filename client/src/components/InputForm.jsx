@@ -1,5 +1,7 @@
 import styled from "styled-components";
 import Button from "./Button";
+import Loader from "./Loader";
+import copyIcon from "../icons/copyIcon.svg";
 
 const InputForm = styled.form`
   display: flex;
@@ -21,15 +23,48 @@ const TextInput = styled.input`
   /* border: none; */
 `;
 
+const Text = styled.p`
+  margin: 0;
+  font-size: 1em;
+  color: #d1dfec;
+`;
+
+const RoomText = styled(Text)`
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+`;
+
+const CopyImg = styled.img`
+  width: 1em;
+  height: 1em;
+  cursor: pointer;
+
+  &:active {
+    transform: scale(1.2);
+  }
+`;
 const Form = ({ roomId, setRoomId, submitHandler, ownRoom }) => {
   const handleSubmit = (e) => {
     console.log(e);
     e.preventDefault();
     submitHandler();
   };
+  const handleCopy = () => {
+    navigator.clipboard.writeText(ownRoom);
+  };
   return (
     <InputForm onSubmit={handleSubmit}>
-      <p>{ownRoom}</p>
+      {!ownRoom ? (
+        <Text>
+          Getting room name... <Loader />
+        </Text>
+      ) : (
+        <RoomText>
+          {ownRoom}{" "}
+          <CopyImg src={copyIcon} alt="Copy room name" onClick={handleCopy} />
+        </RoomText>
+      )}
       <TextInput value={roomId} onChange={(e) => setRoomId(e.target.value)} />
       <Button label="Join" clickHandler={submitHandler} />
     </InputForm>
