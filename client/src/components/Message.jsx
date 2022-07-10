@@ -1,6 +1,4 @@
 import styled from "styled-components";
-import CopyIcon from "../icons/copyIcon.svg";
-import NewTabIcon from "../icons/open.png";
 
 const MessageBox = styled.div`
   display: flex;
@@ -11,6 +9,7 @@ const MessageBox = styled.div`
   color: black;
   background-color: #e6f2ff;
   gap: 0.5em;
+  font-size: 16px;
 `;
 const MessageText = styled.p`
   margin: 0;
@@ -24,31 +23,29 @@ const ActionIcons = styled.div`
   gap: 1em;
 `;
 
-const ActionIcon = styled.img`
+const ActionText = styled.p`
   cursor: pointer;
-  width: 0.9em;
+  margin: 0;
+  padding: 0.3em;
+  border-radius: 2px;
+  background-color: #b3d9ff;
+  font-size: 0.75em;
 `;
 
 const Message = ({ message, type }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(message);
-    console.log(navigator)
+    console.log(navigator);
   };
   return (
     <MessageBox>
       <MessageText>{message}</MessageText>
       <ActionIcons>
-        <ActionIcon
-          src={CopyIcon}
-          alt="Copy message text"
-          onClick={handleCopy}
-        />
+        <ActionText onClick={handleCopy}>Copy</ActionText>
         {type === "link" ? (
-          <ActionIcon
-            src={NewTabIcon}
-            alt="Open link in new tab"
-            onClick={() => window.open(message, "_blank")}
-          />
+          <ActionText onClick={() => window.open(message, "_blank")}>
+            Open link in new tab
+          </ActionText>
         ) : null}
       </ActionIcons>
     </MessageBox>

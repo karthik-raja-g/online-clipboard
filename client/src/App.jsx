@@ -19,7 +19,7 @@ function App() {
 
   useEffect(() => {
     if (socketRef.current) return;
-    socketRef.current = io("http://192.168.0.105:5000", {
+    socketRef.current = io("http://localhost:5000", {
       auth: {
         sessionId: localStorage.getItem("sessionId"),
       },

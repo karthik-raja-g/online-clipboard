@@ -12,20 +12,21 @@ const Container = styled.div`
   border: 1px solid white;
   margin: auto;
   height: 90vh;
+  border-radius: 2px;
 
   @media (max-width: 768px) {
     grid-template-rows: 25% auto;
     grid-template-columns: 100%;
   }
-  /* @media (max-width: 425px) {
-    grid-template-rows: 15% auto;
-  } */
+  @media (max-width: 425px) {
+    grid-template-rows: 20% auto;
+  }
 `;
 
 const MessagesContainer = styled.div`
   box-sizing: border-box;
   /* width: clamp(280px, 75vw, 100%); */
-  border: 1px solid white;
+  /* border: 1px solid white; */
   display: flex;
   flex-direction: column;
   gap: 1em;
@@ -41,14 +42,15 @@ const MessagesContainer = styled.div`
 `;
 
 const MessageForm = styled.form`
-  border: 1px solid white;
+  border-right: 1px solid white;
   display: flex;
   flex-direction: column;
   gap: 0.75em;
   padding: 1em;
 
-  @media (max-width: 425px) {
+  @media (max-width: 768px) {
     justify-content: center;
+    border: none;
   }
 `;
 const TextInput = styled.input`
@@ -71,7 +73,9 @@ const Clip = styled.div`
   margin: auto;
   width: 50%;
   text-align: center;
-  border-radius: 4px 4px 0 0;
+  border-radius: 2px 2px 0 0;
+  color: #d1dfec;
+  border-bottom: 0;
 `;
 
 const MessageList = ({ messages = [], onSendMessage, room }) => {
