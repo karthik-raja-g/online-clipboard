@@ -33,6 +33,7 @@ const RoomText = styled(Text)`
   display: flex;
   align-items: center;
   gap: 0.5em;
+  color: ${props => props.error ? " #d94255" : "#d1dfec"};
 `;
 
 const CopyImg = styled.img`
@@ -44,9 +45,8 @@ const CopyImg = styled.img`
     transform: scale(1.2);
   }
 `;
-const Form = ({ roomId, setRoomId, submitHandler, ownRoom }) => {
+const Form = ({ roomId, setRoomId, submitHandler, ownRoom, error }) => {
   const handleSubmit = (e) => {
-    console.log(e);
     e.preventDefault();
     submitHandler();
   };
@@ -67,6 +67,7 @@ const Form = ({ roomId, setRoomId, submitHandler, ownRoom }) => {
       )}
       <TextInput value={roomId} onChange={(e) => setRoomId(e.target.value)} />
       <Button label="Join" clickHandler={submitHandler} />
+      {error ? <RoomText error>{error}</RoomText> : null}
     </InputForm>
   );
 };

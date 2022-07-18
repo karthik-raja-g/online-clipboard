@@ -84,8 +84,8 @@ module.exports = {
   },
   checkIfSelfConnection: (roomId, socketId) => {
     const room = rooms.find(room => room.id === roomId)
-    if (!room) return true;
-    return room.owner === socketId
+    // if (!room) return true;
+    return room?.owner === socketId
 
   },
   formatMessage,

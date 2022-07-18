@@ -30,14 +30,15 @@ io.on("connection", (socket) => {
   }, 3000);
 
   socket.on("joinRoom", (args, cb) => {
-    console.log({ socketId: socket.id, roomId: args });
+    // console.log({ socketId: socket.id, roomId: args });
     if (checkIfSelfConnection(args, socket.id)) {
-      socket.emit("selfJoinError");
+      socket.emit("joinError", 'Cannot join own room');
       return;
     }
     let roomToJoin = getRoomByNameOrId(args);
     if (!roomToJoin) {
       console.log("room not found");
+      socket.emit("joinError", 'Room not found');
       return;
     }
     const room = joinAndUpdateRooms(args, socket.id);
@@ -66,11 +67,11 @@ io.on("connection", (socket) => {
       // Callback to send old messages to client
       cb(room.messages || []);
     } else {
-      console.log("room not found");
+      // console.log("room not found");
     }
     socket.on("leaveRoom", (roomId) => {
       const room = removeSocketFromRoom(roomId, socket.id);
-      console.log({ room });
+      // console.log({ room });
       socket.emit("socketDisconnected");
       socket.leave(roomId);
     });
@@ -83,11 +84,9 @@ io.on("connection", (socket) => {
     const { room, message } = updateMessageInRoom(roomId, msg);
     if (room) {
       io.to(roomId).emit("chat message", message);
-      console.log("message emitted", message);
+      // console.log("message emitted", message);
     }
   });
 });
 
-server.listen(5000, () => {
-  console.log("listening on *:5000");
-});
+server.listen(5000);

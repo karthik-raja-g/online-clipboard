@@ -1,12 +1,10 @@
 import { useState, useRef } from "react";
-import logo from "./logo.svg";
-import "./App.css";
 import io from "socket.io-client";
 import { useEffect } from "react";
 import Layout from "./components/Layout";
 import Form from "./components/InputForm";
-import data from './mockData';
 import MessageList from "./components/MessageList";
+import "./App.css";
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -15,6 +13,8 @@ function App() {
   const [joined, setJoined] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [ownRoomId, setOwnRoomId] = useState("");
+  const [members,setMembers] = useState(0);
+  const [error, setError] = useState('');
   const socketRef = useRef(null);
 
   useEffect(() => {
@@ -25,7 +25,6 @@ function App() {
       },
     });
     socketRef.current.on("connect", (sk) => {
-      console.log(sk);
     });
     socketRef.current.on("socketDisconnected", (sk) => {
       setRoomId("");
@@ -35,9 +34,7 @@ function App() {
       console.log("socket left");
     });
     // socketRef.current.on('socketDisconnected', () => console.log('socket left'))
-    socketRef.current.on("test", (msg) => console.log("test called" + msg));
     socketRef.current.on("sessionId", (id) => {
-      console.log(id);
       setOwnRoomId(id);
       // ownId = id
     });
@@ -50,28 +47,26 @@ function App() {
   useEffect(() => {
     if (!socketRef.current) return;
     socketRef.current.on("chat message", (message) => {
-      console.log("msg received", message);
       setMessages((prev) => [...prev, message]);
     });
     socketRef.current.on("new connection", (data) => {
-      console.log("new joinee", data);
       setJoined(true);
       setRoomId(data.roomId);
       setIsHost(true);
+      setMembers((prev) => prev + 1);
     });
     socketRef.current.on("old messages", ({ messages }) => {
       setMessages(messages);
-      // console.log('old', msgs)
     });
-    // socketRef.current.on('test', (msg) => console.log('test called' + msg))
+    socketRef.current.on("joinError", message => setError(message))
   }, [socketRef]);
 
   const sendMessage = (msg) => {
     socketRef.current.emit("chat message", { msg, roomId });
-    // setMessage("");
   };
 
   const joinRoom = () => {
+    setError("");
     socketRef.current.emit("joinRoom", roomId, (oldMessages) => {
       setMessages(oldMessages);
       setJoined(true);
@@ -80,40 +75,22 @@ function App() {
 
   const leaveRoom = () => socketRef.current.emit("leaveRoom", roomId);
 
-  useEffect(() => {
-    console.log({ joined, roomId });
-  }, [joined, roomId]);
-
-  // return 
-
   return (
     <Layout>
       {joined && roomId ? (
-        <>
-        <MessageList messages={messages} room={roomId} onSendMessage={sendMessage} />
-          {/* {" "}
-          <h3>Messages</h3>
-          <ul>
-            {messages?.map((msg, i) => (
-              <li key={i}>
-                {msg.type}-{msg.message}
-              </li>
-            ))}
-          </ul>
-          <input value={message} onChange={(e) => setMessage(e.target.value)} />
-          <button onClick={sendMessage}>Send</button>
-          {!isHost && <button onClick={leaveRoom}>Leave room</button>} */}
-        </>
-      ) : (
-        <></>
-      )}
-
+        <MessageList
+          messages={messages}
+          room={roomId}
+          onSendMessage={sendMessage}
+        />
+      ) : null}
       {!joined && (
         <Form
           roomId={roomId}
           setRoomId={setRoomId}
           submitHandler={joinRoom}
           ownRoom={ownRoomId}
+          error={error}
         />
       )}
     </Layout>

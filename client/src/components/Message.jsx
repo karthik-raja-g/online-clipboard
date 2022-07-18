@@ -30,20 +30,26 @@ const ActionText = styled.p`
   border-radius: 2px;
   background-color: #b3d9ff;
   font-size: 0.75em;
+  &:hover {
+    background-color: #99ccff;
+  }
 `;
 
 const Message = ({ message, type }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(message);
-    console.log(navigator);
   };
+  const openLink = () => {
+    const url = new URL(message);
+    window.open(url, "_blank");
+  }
   return (
     <MessageBox>
       <MessageText>{message}</MessageText>
       <ActionIcons>
         <ActionText onClick={handleCopy}>Copy</ActionText>
         {type === "link" ? (
-          <ActionText onClick={() => window.open(message, "_blank")}>
+          <ActionText onClick={openLink}>
             Open link in new tab
           </ActionText>
         ) : null}
