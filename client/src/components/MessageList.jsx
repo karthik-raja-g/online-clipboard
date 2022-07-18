@@ -95,7 +95,7 @@ const MessageList = ({ messages = [], onSendMessage, room }) => {
     })
   },[messages])
   return (
-    <div style={{ paddingTop: '40px'}}>
+    <div>
       <Clip>Room - {room}</Clip>
       <Container>
         <MessageForm onSubmit={handleSend}>

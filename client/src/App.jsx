@@ -31,7 +31,7 @@ function App() {
       setMessage("");
       setMessages([]);
       setJoined(false);
-      console.log("socket left");
+      // console.log("socket left");
     });
     // socketRef.current.on('socketDisconnected', () => console.log('socket left'))
     socketRef.current.on("sessionId", (id) => {
