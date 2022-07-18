@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import Logo from "../icons/logo.png";
 
 const Body = styled.div`
   height: 100vh;
@@ -15,18 +14,9 @@ const Body = styled.div`
   }
 `;
 
-const Logox = styled.div`
-background-image: url('./assets/logo.png');
-height: 50px;
-width: 100px ;
-  /* position: fixed;
-  top: 0;
-  left: 0; */
-`;
 const Layout = ({ children }) => (
   <Body>
     {children}
-    <Logox />
   </Body>
 );
 

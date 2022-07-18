@@ -12,11 +12,12 @@ const {
   removeSocketFromRoom,
   checkIfSelfConnection,
 } = require("./rooms");
+require('dotenv').config();
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: process.env.CLIENT_URL,
   },
 });
 
@@ -89,4 +90,4 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(5000);
+server.listen(process.env.PORT);
