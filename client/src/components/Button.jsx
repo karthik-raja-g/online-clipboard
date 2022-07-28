@@ -9,6 +9,7 @@ const Btn = styled.button`
   border-radius: 2px;
   border: none;
   font-size: 1em ;
+  cursor: pointer;
 `;
 
 const Button = ({ clickHandler, label }) => (

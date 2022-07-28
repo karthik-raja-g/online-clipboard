@@ -83,6 +83,7 @@ const MessageList = ({ messages = [], onSendMessage, room }) => {
   const messagesRef = useRef(null);
   const handleSend = (e) => {
     e.preventDefault();
+    if(!message) return;
     onSendMessage(message);
     setMessage("");
   };

@@ -33,7 +33,11 @@ const RoomText = styled(Text)`
   display: flex;
   align-items: center;
   gap: 0.5em;
-  color: ${props => props.error ? " #d94255" : "#d1dfec"};
+  color: ${(props) => (props.error ? " #d94255" : "#d1dfec")};
+`;
+
+const SmallText = styled(Text)`
+  font-size: 0.6em;
 `;
 
 const CopyImg = styled.img`
@@ -60,10 +64,13 @@ const Form = ({ roomId, setRoomId, submitHandler, ownRoom, error }) => {
           Getting room name... <Loader />
         </Text>
       ) : (
-        <RoomText>
-          {ownRoom}{" "}
-          <CopyImg src={copyIcon} alt="Copy room name" onClick={handleCopy} />
-        </RoomText>
+        <>
+          <SmallText>Use the room ID to invite others </SmallText>
+          <RoomText>
+            {ownRoom}{" "}
+            <CopyImg src={copyIcon} alt="Copy room name" onClick={handleCopy} />
+          </RoomText>
+        </>
       )}
       <TextInput value={roomId} onChange={(e) => setRoomId(e.target.value)} />
       <Button label="Join" clickHandler={submitHandler} />
